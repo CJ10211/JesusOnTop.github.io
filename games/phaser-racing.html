@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Phaser Car Race</title>
+<style>body{margin:0;background:#1a1a2e;display:flex;flex-direction:column;height:100vh;font-family:Arial,sans-serif;color:#fff;overflow:hidden}header{padding:12px;text-align:center;background:#0f0f23}#game{flex:1}footer{padding:8px;text-align:center;font-size:12px;background:#0f0f23}</style>
+</head>
+<body>
+<header>
+  <h1>Racing Game (Phaser)</h1>
+  <p>Arrow keys to move. Avoid obstacles!</p>
+</header>
+<div id="game"></div>
+<footer>
+  <a href="index.html" style="color:#64b5f6">Back to Games</a>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+<script>
+const config={type:Phaser.AUTO,parent:'game',width:800,height:600,physics:{default:'arcade',arcade:{debug:false,gravity:{y:0}}},scene:{preload,create,update}};const game=new Phaser.Game(config);let player,cursors,speed=0,maxSpeed=300;function preload(){}
+function create(){this.add.rectangle(400,300,800,600,0x2a5cdb);this.add.text(400,30,'Car Racing - Avoid Obstacles',{fontSize:'20px',fill:'#fff'}).setOrigin(0.5);
+ player=this.add.rectangle(400,500,40,60,0xff6b6b);this.physics.add.existing(player);player.body.setCollideWorldBounds(true);player.body.setBounce(0.5);
+ // create obstacle spawner
+ this.obstacleGroup=this.add.group();this.time.addEvent({delay:1000,callback:()=>{const x=Phaser.Math.Between(100,700);const obstacle=this.add.rectangle(x,0,50,40,0xffd93d);this.physics.add.existing(obstacle);obstacle.body.setVelocityY(250);this.obstacleGroup.add(obstacle);
+ this.physics.add.overlap(player,obstacle,()=>{player.setFill(0xff0000);this.time.delayedCall(200,()=>{player.setFill(0xff6b6b)})})},loop:true});
+ cursors=this.input.keyboard.createCursorKeys();this.score=0;this.scoreText=this.add.text(16,16,'Score: 0',{fontSize:'18px',fill:'#fff'});}
+function update(){if(cursors.left.isDown){player.body.setVelocityX(-300)}else if(cursors.right.isDown){player.body.setVelocityX(300)}else{player.body.setVelocityX(0)}
+ // remove offscreen obstacles and increment score
+ this.obstacleGroup.children.entries.forEach((obs,idx)=>{if(obs.y>600){this.obstacleGroup.remove(obs,true,true);this.score+=10;this.scoreText.setText('Score: '+this.score)}});}
+</script>
+</body>
+</html>
