@@ -1,21 +1,2 @@
 <!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pac-Man Game</title>
-<style>body{margin:0;background:#000;display:flex;flex-direction:column;height:100vh;font-family:Arial,sans-serif;color:#fff}header{padding:12px;text-align:center}#game-container{flex:1;display:flex;align-items:center;justify-content:center}iframe{width:100%;height:100%;border:none;max-width:600px}footer{padding:12px;text-align:center;font-size:12px}</style>
-</head>
-<body>
-<header>
-  <h1>Pac-Man Game</h1>
-  <p>Classic Pac-Man. Use arrow keys to move.</p>
-</header>
-<div id="game-container">
-  <iframe src="https://www.pacman-game.com/" allowfullscreen></iframe>
-</div>
-<footer>
-  <a href="index.html" style="color:#9ecbf8">Back to Games</a>
-</footer>
-</body>
-</html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pac-Man</title><style>body{margin:0;padding:20px;background:#000;color:#fff;font-family:Arial;text-align:center}canvas{background:#000;border:4px solid #ffff00;display:block;margin:20px auto;box-shadow:0 8px 16px rgba(0,0,0,0.5)}#info{font-size:18px;margin:10px 0}button{padding:10px 20px;background:#ffff00;color:#000;border:none;cursor:pointer;border-radius:5px;margin:5px;font-weight:bold}a{color:#ffff00;text-decoration:none;margin:0 10px}</style></head><body><h1>👾 Pac-Man</h1><div id="info">Score: <span id="score">0</span> | Pellets: <span id="pellets">0</span></div><canvas id="gameCanvas" width="420" height="420"></canvas><div><button onclick="location.reload()">Restart</button><a href="index.html">Back</a></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const tileSize=20;const maze=[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,1],[1,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,1,0,1],[1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1],[1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1],[1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];let pacman={x:10,y:11,direction:0},score=0,pelletsLeft=0;function initPellets(){pelletsLeft=0;for(let i=0;i<maze.length;i++)for(let j=0;j<maze[i].length;j++)if(maze[i][j]===0)pelletsLeft++}function isWall(x,y){return y<0||y>=maze.length||x<0||x>=maze[0].length||maze[y][x]===1}function update(){const dirs=[[1,0],[0,-1],[-1,0],[0,1]];const [dx,dy]=dirs[pacman.direction];const nx=pacman.x+dx;const ny=pacman.y+dy;if(!isWall(nx,ny)){pacman.x=nx;pacman.y=ny;if(maze[pacman.y][pacman.x]===0){score+=10;maze[pacman.y][pacman.x]=2;pelletsLeft--;if(pelletsLeft===0)alert('You Won! Score: '+score)}}}function draw(){ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);for(let i=0;i<maze.length;i++){for(let j=0;j<maze[i].length;j++){if(maze[i][j]===1){ctx.fillStyle='#0000ff';ctx.fillRect(j*tileSize,i*tileSize,tileSize,tileSize);ctx.strokeStyle='#0088ff';ctx.strokeRect(j*tileSize,i*tileSize,tileSize,tileSize)}}}ctx.fillStyle='#ffff00';ctx.beginPath();ctx.arc(pacman.x*tileSize+tileSize/2,pacman.y*tileSize+tileSize/2,tileSize/2-2,0.2,2*Math.PI-0.2);ctx.lineTo(pacman.x*tileSize+tileSize/2,pacman.y*tileSize+tileSize/2);ctx.fill();document.getElementById('score').textContent=score;document.getElementById('pellets').textContent=pelletsLeft}document.addEventListener('keydown',e=>{if(e.key==='ArrowUp')pacman.direction=1;if(e.key==='ArrowDown')pacman.direction=3;if(e.key==='ArrowLeft')pacman.direction=2;if(e.key==='ArrowRight')pacman.direction=0});function gameLoop(){update();draw();requestAnimationFrame(gameLoop)}initPellets();gameLoop();</script></body></html>

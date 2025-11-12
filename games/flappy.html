@@ -1,21 +1,2 @@
 <!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Flappy Bird Clone</title>
-<style>body{margin:0;background:#0a0a0a;display:flex;flex-direction:column;height:100vh;font-family:Arial,sans-serif;color:#fff}header{padding:12px;text-align:center}#game-container{flex:1;display:flex;align-items:center;justify-content:center}iframe{width:100%;height:100%;border:none;max-width:800px}footer{padding:12px;text-align:center;font-size:12px}</style>
-</head>
-<body>
-<header>
-  <h1>Flappy Bird Clone</h1>
-  <p>Tap or click to fly. Avoid the pipes!</p>
-</header>
-<div id="game-container">
-  <iframe src="https://cdn.jsdelivr.net/npm/flappy-bird-game@1.0.0/index.html" allowfullscreen></iframe>
-</div>
-<footer>
-  <a href="index.html" style="color:#9ecbf8">Back to Games</a>
-</footer>
-</body>
-</html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Flappy Bird</title><style>body{margin:0;padding:0;background:#87ceeb;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}#gameContainer{text-align:center}canvas{background:linear-gradient(180deg,#87ceeb 0%,#e0f6ff 100%);display:block;border:4px solid #333;box-shadow:0 8px 16px rgba(0,0,0,0.2)}h1{margin:10px 0;color:#333}#score{font-size:24px;color:#333;margin:10px 0}button{padding:10px 20px;margin:5px;background:#333;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:14px}a{color:#333;text-decoration:none;margin:0 10px}</style></head><body><div id="gameContainer"><h1>🐦 Flappy Bird</h1><div id="score">Score: 0</div><canvas id="gameCanvas" width="400" height="600"></canvas><div><button onclick="location.reload()">Restart</button><a href="index.html">Back to Games</a></div></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const bird={x:50,y:150,radius:12,velocityY:0,gravity:0.6,jumpPower:-12};let pipes=[],score=0,gameOver=false;const pipeWidth=60,pipeGap=120,pipeFrequency=90;let frameCount=0;function drawBird(){ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(bird.x,bird.y,bird.radius,0,Math.PI*2);ctx.fill();ctx.fillStyle='#000';ctx.beginPath();ctx.arc(bird.x+5,bird.y-3,3,0,Math.PI*2);ctx.fill()}function drawPipes(){ctx.fillStyle='#2ecc71';pipes.forEach(pipe=>{ctx.fillRect(pipe.x,0,pipeWidth,pipe.topHeight);ctx.fillRect(pipe.x,pipe.topHeight+pipeGap,pipeWidth,canvas.height-pipe.topHeight-pipeGap);ctx.strokeStyle='#27ae60';ctx.lineWidth=2;ctx.strokeRect(pipe.x,0,pipeWidth,pipe.topHeight);ctx.strokeRect(pipe.x,pipe.topHeight+pipeGap,pipeWidth,canvas.height-pipe.topHeight-pipeGap)})}function drawGround(){ctx.fillStyle='#8B7355';ctx.fillRect(0,canvas.height-20,canvas.width,20);ctx.fillStyle='#A0826D';for(let i=0;i<canvas.width;i+=40){ctx.fillRect(i,canvas.height-20,20,20)}}function update(){bird.velocityY+=bird.gravity;bird.y+=bird.velocityY;if(bird.y+bird.radius>canvas.height-20||bird.y-bird.radius<0)gameOver=true;frameCount++;if(frameCount%pipeFrequency===0){const topHeight=Math.random()*(canvas.height-pipeGap-100)+50;pipes.push({x:canvas.width,topHeight:topHeight})}pipes.forEach(pipe=>{pipe.x-=5;if(pipe.x+pipeWidth<bird.x&&!pipe.scored){pipe.scored=true;score++}if(bird.x+bird.radius>pipe.x&&bird.x-bird.radius<pipe.x+pipeWidth){if(bird.y-bird.radius<pipe.topHeight||bird.y+bird.radius>pipe.topHeight+pipeGap){gameOver=true}}});pipes=pipes.filter(p=>p.x>-pipeWidth)}function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#87ceeb';ctx.fillRect(0,0,canvas.width,canvas.height);drawPipes();drawGround();drawBird();ctx.fillStyle='#333';ctx.font='20px Arial';ctx.fillText('Score: '+score,10,30);if(gameOver){ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#fff';ctx.font='bold 40px Arial';ctx.textAlign='center';ctx.fillText('GAME OVER',canvas.width/2,canvas.height/2-40);ctx.font='20px Arial';ctx.fillText('Score: '+score,canvas.width/2,canvas.height/2+20)}}function gameLoop(){if(!gameOver)update();draw();requestAnimationFrame(gameLoop)}canvas.addEventListener('click',()=>{bird.velocityY=bird.jumpPower});document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();bird.velocityY=bird.jumpPower}});gameLoop();</script></body></html>
