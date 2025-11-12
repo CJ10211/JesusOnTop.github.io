@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Top-Down Shooter</title>
+<style>html,body{height:100%;margin:0;background:#071025;color:#fff;font-family:Arial}#wrap{display:flex;flex-direction:column;height:100%}header{padding:12px;text-align:center}canvas{display:block;margin:0 auto;border:6px solid #222;background:#00111a}#hud{display:flex;justify-content:center;gap:20px;padding:8px}button{padding:8px 10px;border-radius:6px;border:0;background:#0366d6;color:#fff}</style>
+</head>
+<body>
+<div id="wrap">
+  <header>
+    <h1>Top-Down Shooter</h1>
+    <p>Move with arrow keys / A-D, tap left/right sides on mobile. Tap/click to shoot.</p>
+  </header>
+  <canvas id="c" width="480" height="640"></canvas>
+  <div id="hud">
+    <div>Score: <span id="score">0</span></div>
+    <div>Lives: <span id="lives">3</span></div>
+    <button id="reset">Reset</button>
+    <a href="index.html" style="color:#9ecbf8">Back</a>
+  </div>
+</div>
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;
+let player={x:W/2,y:H-60,w:36,h:18,spd:4};let bullets=[];let enemies=[];let score=0;let lives=3;let spawnTimer=0;let left=false,right=false;let lastFire=0;let gameOver=false;const fireRate=220;
+function spawnEnemy(){const x=20+Math.random()*(W-40);enemies.push({x,y: -20||0,y: -20, w:32,h:18,dy:1.2+Math.random()*1.2,health:1})}
+function reset(){bullets=[];enemies=[];score=0;lives=3;spawnTimer=0;gameOver=false;document.getElementById('score').textContent=score;document.getElementById('lives').textContent=lives}
+reset();
+// controls
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='a')left=true;if(e.key==='ArrowRight'||e.key==='d')right=true;if(e.key===' '||e.key==='Enter')tryFire();});
+document.addEventListener('keyup',e=>{if(e.key==='ArrowLeft'||e.key==='a')left=false;if(e.key==='ArrowRight'||e.key==='d')right=false});
+canvas.addEventListener('pointerdown', (e)=>{const r=canvas.getBoundingClientRect();const x=e.clientX-r.left; if(x < r.width*0.4) left=true; else if(x>r.width*0.6) right=true; else tryFire();});
+canvas.addEventListener('pointerup', ()=>{left=false;right=false});
+function tryFire(){const now=Date.now(); if(now-lastFire>fireRate){bullets.push({x:player.x,y:player.y-12,dy:-6}); lastFire=now}}
+// update
+function update(){if(gameOver) return; if(left) player.x -= player.spd; if(right) player.x += player.spd; player.x=Math.max(18,Math.min(W-18,player.x)); // bullets
+ for(let i=bullets.length-1;i>=0;i--){let b=bullets[i]; b.y+=b.dy; if(b.y< -10) bullets.splice(i,1)}
+ // spawn enemies
+ spawnTimer++; if(spawnTimer>30){spawnTimer=0; let eX=20+Math.random()*(W-40); enemies.push({x:eX,y:-20,w:28,h:18,dy:1.2+Math.random()*1.4,health:1})}
+ // enemies move
+ for(let i=enemies.length-1;i>=0;i--){let en=enemies[i]; en.y += en.dy; // shot hits
+ for(let j=bullets.length-1;j>=0;j--){let b=bullets[j]; if(b.x>en.x- en.w/2 && b.x < en.x+en.w/2 && b.y>en.y-en.h/2 && b.y < en.y+en.h/2){ bullets.splice(j,1); en.health--; if(en.health<=0){enemies.splice(i,1); score+=50; document.getElementById('score').textContent=score;} break }}
+ // collision with player
+ if(en.y > H){ enemies.splice(i,1); continue }
+ if(Math.abs(en.x-player.x) < (en.w/2 + player.w/2) && Math.abs(en.y-player.y) < (en.h/2 + player.h/2)){
+   enemies.splice(i,1); lives--; document.getElementById('lives').textContent=lives; if(lives<=0){gameOver=true;}}
+ }
+}
+// render
+function draw(){ctx.clearRect(0,0,W,H); // background
+ ctx.fillStyle='#041425'; ctx.fillRect(0,0,W,H);
+ // player
+ ctx.fillStyle='#6ef'; ctx.beginPath(); ctx.moveTo(player.x,player.y-12); ctx.lineTo(player.x-18,player.y+12); ctx.lineTo(player.x+18,player.y+12); ctx.closePath(); ctx.fill();
+ // bullets
+ ctx.fillStyle='#ffd'; for(let b of bullets){ctx.fillRect(b.x-2,b.y-6,4,8)}
+ // enemies
+ ctx.fillStyle='#f66'; for(let en of enemies){ctx.fillRect(en.x-en.w/2,en.y-en.h/2,en.w,en.h)}
+ if(gameOver){ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='28px Arial';ctx.fillText('Game Over',W/2-80,H/2-10); ctx.font='16px Arial'; ctx.fillText('Press Reset',W/2-50,H/2+20)}
+}
+function loop(){update();draw();requestAnimationFrame(loop)}
+loop();
+// UI
+document.getElementById('reset').addEventListener('click',()=>{reset()});
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ragdoll Hit (demo)</title>
+<style>
+html,body{height:100%;margin:0;background:#111;color:#fff;font-family:Arial}
+#wrap{display:flex;flex-direction:column;height:100%}
+header{padding:12px;text-align:center}
+canvas{background:#0a0a0a;display:block;margin:auto;border:6px solid #222}
+.controls{padding:8px;text-align:center}
+button{padding:8px 12px;border-radius:6px;border:0;background:#0366d6;color:#fff}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <header>
+    <h1>Ragdoll Hit (demo)</h1>
+    <p>Click or tap to spawn a projectile from the bottom center toward the pointer.</p>
+  </header>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <canvas id="c" width="720" height="480"></canvas>
+  </div>
+  <div class="controls">
+    <button id="reset">Reset Ragdoll</button>
+    <a href="index.html" style="margin-left:12px;color:#9ecbf8">Back</a>
+  </div>
+</div>
+<script>
+// Simple Verlet physics + constraints ragdoll demo
+const canvas=document.getElementById('c');const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;let points=[],sticks=[],balls=[];const gravity=0.6;const friction=0.999;const bounce=0.9;const ITER=5;const pointRadius=4;function addPoint(x,y,pinned=false){points.push({x,y,px:x,py:y,pinned}) ;return points.length-1}
+function addStick(a,b,length){sticks.push({a,b,length:length||dist(points[a],points[b])})}
+function dist(p1,p2){return Math.hypot(p1.x-p2.x,p1.y-p2.y)}
+function makeRagdoll(cx,cy){points=[];sticks=[];
+ // head and body
+ const head=addPoint(cx,cy-70,false);
+ const neck=addPoint(cx,cy-50,false);
+ const chest=addPoint(cx,cy-30,false);
+ const hip=addPoint(cx,cy+10,false);
+ addStick(head,neck,20);addStick(neck,chest,22);addStick(chest,hip,40);
+ // arms
+ const ls=addPoint(cx-28,cy-36,false);const le=addPoint(cx-48,cy-18,false);const lh=addPoint(cx-64,cy+2,false);
+ const rs=addPoint(cx+28,cy-36,false);const re=addPoint(cx+48,cy-18,false);const rh=addPoint(cx+64,cy+2,false);
+ addStick(neck,ls,18);addStick(ls,le,20);addStick(le,lh,20);
+ addStick(neck,rs,18);addStick(rs,re,20);addStick(re,rh,20);
+ // legs
+ const lhip=addPoint(cx-12,cy+34,false);const lk=addPoint(cx-12,cy+70,false);const lf=addPoint(cx-12,cy+110,false);
+ const rhip=addPoint(cx+12,cy+34,false);const rk=addPoint(cx+12,cy+70,false);const rf=addPoint(cx+12,cy+110,false);
+ addStick(hip,lhip,26);addStick(lhip,lk,36);addStick(lk,lf,40);
+ addStick(hip,rhip,26);addStick(rhip,rk,36);addStick(rk,rf,40);
+ // torso connections
+ addStick(chest,lhip,36);addStick(chest,rhip,36);
+ // pin the head slightly (not fully pinned)
+ points[neck].pinned=false; points[head].pinned=false; // allow movement
+}
+function spawnBall(x,y,vx,vy){balls.push({x,y,vx,vy,r:10})}
+function simulate(){// integrate points
+ for(let p of points){ if(p.pinned) continue; let vx=(p.x-p.px)*friction; let vy=(p.y-p.py)*friction; p.px=p.x; p.py=p.y; p.x+=vx; p.y+=vy; p.y+=gravity }
+ // simulate balls
+ for(let b of balls){ b.vy+=gravity*0.4; b.x+=b.vx; b.y+=b.vy; // bounds
+ if(b.x< b.r){b.x=b.r; b.vx*=-bounce} if(b.x>W-b.r){b.x=W-b.r; b.vx*=-bounce} if(b.y>H-b.r){b.y=H-b.r; b.vy*=-bounce; b.vx*=0.98} }
+ // satisfy constraints
+ for(let k=0;k<ITER;k++){
+   for(let s of sticks){ let a=points[s.a], b=points[s.b]; let dx=b.x-a.x, dy=b.y-a.y, d=Math.hypot(dx,dy); if(d===0) continue; let diff=(s.length-d)/d; let ox=dx*0.5*diff, oy=dy*0.5*diff; if(!a.pinned){ a.x-=ox; a.y-=oy } if(!b.pinned){ b.x+=ox; b.y+=oy } }
+   // bounds for points
+   for(let p of points){ if(p.pinned) continue; if(p.x<1) p.x=1; if(p.x>W-1) p.x=W-1; if(p.y<1) p.y=1; if(p.y>H-1){ p.y=H-1; } }
+ }
+ // ball-point collisions
+ for(let b of balls){ for(let p of points){ let dx=p.x-b.x, dy=p.y-b.y, d=Math.hypot(dx,dy); if(d< b.r+pointRadius){ // simple impulse: push point
+   const overlap = (b.r+pointRadius)-d; const nx = dx/d || 0, ny = dy/d || 0; if(!p.pinned){ p.x += nx*overlap; p.y += ny*overlap; // move previous to create velocity
+       p.px += nx*overlap*0.6; p.py += ny*overlap*0.6 } // reflect ball slightly
+   b.vx -= nx* (Math.abs(b.vx)+1)*0.3; b.vy -= ny*(Math.abs(b.vy)+1)*0.3; } }}
+ // remove slow balls that are offscreen
+ balls = balls.filter(b=>!(Math.abs(b.vx)<0.02 && Math.abs(b.vy)<0.02 && b.y>H-30));
+}
+function render(){ctx.clearRect(0,0,W,H); // ground
+ ctx.fillStyle='#121212'; ctx.fillRect(0,H-10,W,10);
+ // sticks
+ ctx.strokeStyle='#8fb1ff'; ctx.lineWidth=3; for(let s of sticks){ let a=points[s.a], b=points[s.b]; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke() }
+ // points
+ ctx.fillStyle='#fff'; for(let p of points){ ctx.beginPath(); ctx.arc(p.x,p.y,pointRadius,0,Math.PI*2); ctx.fill() }
+ // balls
+ for(let b of balls){ ctx.fillStyle='#f55'; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill() }
+ // instructions overlay
+ ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(10,10,220,44); ctx.fillStyle='#fff'; ctx.font='13px Arial'; ctx.fillText('Click/tap to throw a ball. Hold shift to throw stronger.',16,32);
+}
+let last=0;function step(t){ const dt=t-last; last=t; simulate(); render(); requestAnimationFrame(step)}
+makeRagdoll(W*0.65,H*0.45);
+// add a few stacked boxes as targets
+function addStack(){const startX=120; for(let i=0;i<3;i++){ // simple extra points and sticks for stack
+   const a=addPoint(startX, H-20 - i*28, false); const b=addPoint(startX+40, H-20 - i*28, false); addStick(a,b,40); addStick(a,a); // no-op to keep structure
+ }}
+addStack();
+requestAnimationFrame(step);
+// input: click to spawn ball from bottom center toward pointer
+canvas.addEventListener('pointerdown', (e)=>{ const rect=canvas.getBoundingClientRect(); const x=e.clientX-rect.left, y=e.clientY-rect.top; const sx=W/2, sy=H-10; let vx=(x-sx)/18, vy=(y-sy)/18; if(e.shiftKey){vx*=1.8;vy*=1.8} spawnBall(sx,sy,vx,vy); });
+// reset
+document.getElementById('reset').addEventListener('click',()=>{ points=[]; sticks=[]; balls=[]; makeRagdoll(W*0.65,H*0.45); addStack(); });
+</script>
+</body>
+</html>

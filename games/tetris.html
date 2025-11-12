@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tetris</title>
+<style>body{margin:0;display:flex;min-height:100vh;align-items:center;justify-content:center;background:#111;color:#fff;font-family:Arial}canvas{background:#000;border:6px solid #222}</style>
+</head>
+<body>
+<canvas id="c" width="240" height="400"></canvas>
+<div style="text-align:center;margin-top:8px;">
+  <button id="reset">Reset Game</button>
+  <a href="index.html" style="margin-left:12px;color:#9ecbf8">Back</a>
+</div>
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');const COLS=10,ROWS=20, BLOCK=20;canvas.width=COLS*BLOCK;canvas.height=ROWS*BLOCK;let grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));const PIECES=[
+  [[1,1,1,1]],
+  [[1,1],[1,1]],
+  [[0,1,1],[1,1,0]],
+  [[1,1,0],[0,1,1]],
+  [[1,0,0],[1,1,1]],
+  [[0,0,1],[1,1,1]],
+  [[0,1,0],[1,1,1]]
+];const COLORS=['#000','#0ff','#ff0','#0f0','#f0f','#f90','#f09','#9f0'];
+function randPiece(){let id=Math.floor(Math.random()*PIECES.length);return {shape:PIECES[id].map(r=>r.slice()),x:Math.floor(COLS/2)-1,y:0,id:id+1}}
+let piece=randPiece();let drop=500;let last=Date.now();let over=false;let score=0;document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){move(-1)}if(e.key==='ArrowRight'){move(1)}if(e.key==='ArrowDown'){softDrop()}if(e.key==='ArrowUp'){rotate()}});
+function collide(p){for(let r=0;r<p.shape.length;r++)for(let c=0;c<p.shape[r].length;c++)if(p.shape[r][c]){let x=p.x+c,y=p.y+r;if(x<0||x>=COLS||y>=ROWS|| (y>=0 && grid[y][x]))return true}return false}
+function move(dir){piece.x+=dir;if(collide(piece))piece.x-=dir}
+function rotate(){let s=piece.shape;let H=s.length,W=s[0].length;let ns=Array.from({length:W},()=>Array(H));for(let r=0;r<H;r++)for(let c=0;c<W;c++)ns[c][H-1-r]=s[r][c];piece.shape=ns;if(collide(piece)){piece.shape=s}}
+function softDrop(){piece.y++;if(collide(piece)){piece.y--;place()}}
+function place(){for(let r=0;r<piece.shape.length;r++)for(let c=0;c<piece.shape[r].length;c++)if(piece.shape[r][c]){let x=piece.x+c,y=piece.y+r;if(y<0){over=true;return}grid[y][x]=piece.id}let lines = clearLines(); if(lines>0) score += lines * 100; piece=randPiece();if(collide(piece))over=true}
+function clearLines(){let cleared=0;for(let r=ROWS-1;r>=0;r--){if(grid[r].every(v=>v)){grid.splice(r,1);grid.unshift(Array(COLS).fill(0));r++; cleared++}}return cleared}
+function draw(){ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){if(grid[r][c]){ctx.fillStyle=COLORS[grid[r][c]];ctx.fillRect(c*BLOCK,r*BLOCK,BLOCK-1,BLOCK-1)}}if(piece){for(let r=0;r<piece.shape.length;r++)for(let c=0;c<piece.shape[r].length;c++)if(piece.shape[r][c]){ctx.fillStyle=COLORS[piece.id];ctx.fillRect((piece.x+c)*BLOCK,(piece.y+r)*BLOCK,BLOCK-1,BLOCK-1)}}
+  // score
+  ctx.fillStyle='#fff';ctx.font='14px Arial';ctx.fillText('Score: '+score,8,16);
+  if(over){ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#fff';ctx.font='18px Arial';ctx.fillText('Game Over',40,canvas.height/2)} }
+function loop(){let now=Date.now();if(now-last>drop){piece.y++;if(collide(piece)){piece.y--;place()}last=now}draw();if(!over)requestAnimationFrame(loop)}
+
+document.getElementById('reset').addEventListener('click',()=>{grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));piece=randPiece();score=0;over=false;last=Date.now();});
+
+loop();
+</script>
+</body>
+</html>

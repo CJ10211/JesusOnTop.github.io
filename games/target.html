@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Target Shooting Gallery</title>
+<style>html,body{height:100%;margin:0;background:#0b0b10;color:#fff;font-family:Arial}main{max-width:900px;margin:18px auto;padding:12px}canvas{display:block;margin:12px auto;border:6px solid #222;background:#07070a}#controls{display:flex;gap:12px;justify-content:center;align-items:center}button{padding:8px 10px;border-radius:6px;border:0;background:#0366d6;color:#fff}</style>
+</head>
+<body>
+<main>
+  <h1>Target Shooting</h1>
+  <p>Click or tap targets to score. Timer counts down.</p>
+  <canvas id="c" width="720" height="420"></canvas>
+  <div id="controls">
+    <div>Score: <span id="score">0</span></div>
+    <div>Time: <span id="time">30</span>s</div>
+    <button id="reset">Restart</button>
+    <a href="index.html" style="color:#9ecbf8">Back</a>
+  </div>
+</main>
+<script>
+const canvas=document.getElementById('c');const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;let targets=[];let score=0;let timeLeft=30;let running=false;let spawn=0;
+function rand(min,max){return Math.random()*(max-min)+min}
+function addTarget(){const r=20;const x=rand(r,W-r);const y=rand(r+40,H-r-20);const s = Math.random()>0.85?2:1; targets.push({x,y,r,scale:s,alive:true})}
+function reset(){targets=[];score=0;timeLeft=30;spawn=0;running=true;document.getElementById('score').textContent=score;document.getElementById('time').textContent=timeLeft}
+reset();
+setInterval(()=>{if(running){timeLeft--;document.getElementById('time').textContent=timeLeft;if(timeLeft<=0){running=false}}},1000)
+canvas.addEventListener('pointerdown', (e)=>{if(!running) return; const rct=canvas.getBoundingClientRect(); const x=e.clientX-rct.left, y=e.clientY-rct.top; for(let i=targets.length-1;i>=0;i--){let t=targets[i]; let d=Math.hypot(t.x-x,t.y-y); if(d<t.r*t.scale){score += t.scale===2?50:10;document.getElementById('score').textContent=score; targets.splice(i,1); break}}})
+function update(){if(!running) return; spawn++; if(spawn%30===0){ addTarget(); if(Math.random()>0.92) addTarget() } // gentle decay of targets
+ for(let i=targets.length-1;i>=0;i--){let t=targets[i]; t.r -= 0.02; if(t.r<8) targets.splice(i,1)} }
+function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#0b0b0f';ctx.fillRect(0,0,W,H); for(let t of targets){ctx.save();ctx.translate(t.x,t.y); ctx.fillStyle=t.scale===2? '#ffb3b3':'#ffef9b'; ctx.beginPath(); ctx.arc(0,0,t.r*t.scale,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#c00'; ctx.beginPath(); ctx.arc(0,0,t.r*t.scale*0.5,0,Math.PI*2); ctx.fill(); ctx.restore()} if(!running){ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='28px Arial';ctx.fillText('Time Up',W/2-60,H/2-10);}} 
+function loop(){update();draw();requestAnimationFrame(loop)}
+loop();
+document.getElementById('reset').addEventListener('click',()=>{reset()});
+</script>
+</body>
+</html>
