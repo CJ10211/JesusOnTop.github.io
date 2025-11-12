@@ -1,16 +1,1 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chess Online</title>
-<style>body{margin:0;background:#0a0a0a;display:flex;flex-direction:column;height:100vh;font-family:Arial,sans-serif;color:#fff;overflow:hidden}header{padding:12px;text-align:center;background:#1a1a1a}#game{flex:1;display:flex;align-items:center;justify-content:center}iframe{width:100%;height:100%;border:none}footer{padding:8px;text-align:center;font-size:12px;background:#1a1a1a}</style>
-</head>
-<body>
-<header><h1>Chess Online</h1><p>Play chess</p></header>
-<div id="game">
-  <iframe src="https://lichess.org/editor" allowfullscreen></iframe>
-</div>
-<footer><a href="index.html" style="color:#64b5f6">Back to Games</a></footer>
-</body>
-</html>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chess</title><style>body{font-family:Arial;text-align:center;background:#2c3e50;color:#fff;padding:20px}#board{display:inline-block;background:#8b7355;border:4px solid #333}#board div{display:inline-block;width:50px;height:50px;border:1px solid #000}button{padding:10px;margin:10px;background:#27ae60;color:#fff;border:0;cursor:pointer}</style></head><body><h1>Chess (Simplified Demo)</h1><p>This is a visual chess board demo. Click squares to select pieces.</p><div id="board"></div><button onclick="resetBoard()">Reset</button><p><a href="index.html" style="color:#3498db">Back</a></p><script>const pieces={'a1':'♖','b1':'♘','c1':'♗','d1':'♕','e1':'♔','f1':'♗','g1':'♘','h1':'♖','a2':'♙','b2':'♙','c2':'♙','d2':'♙','e2':'♙','f2':'♙','g2':'♙','h2':'♙','a8':'♜','b8':'♞','c8':'♝','d8':'♛','e8':'♚','f8':'♝','g8':'♞','h8':'♜','a7':'♟','b7':'♟','c7':'♟','d7':'♟','e7':'♟','f7':'♟','g7':'♟','h7':'♟'};function drawBoard(){const b=document.getElementById('board');b.innerHTML='';for(let r=8;r>=1;r--){for(let c='abcdefgh'.split(''),i=0;i<8;i++){const sq=c[i]+r;const div=document.createElement('div');div.style.background=((c.charCodeAt(i)-97+r)%2===0)?'#f0d9b5':'#b58863';div.textContent=pieces[sq]||'';div.style.fontSize='32px';div.style.lineHeight='50px';div.style.cursor='pointer';div.onclick=()=>alert('Square: '+sq);b.appendChild(div)}}}function resetBoard(){drawBoard()}drawBoard();</script></body></html>

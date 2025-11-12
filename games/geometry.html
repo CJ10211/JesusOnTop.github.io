@@ -1,16 +1,1 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Geometry Dash</title>
-<style>body{margin:0;background:#0a0a0a;display:flex;flex-direction:column;height:100vh;font-family:Arial,sans-serif;color:#fff;overflow:hidden}header{padding:12px;text-align:center;background:#1a1a1a}#game{flex:1;display:flex;align-items:center;justify-content:center}iframe{width:100%;height:100%;border:none}footer{padding:8px;text-align:center;font-size:12px;background:#1a1a1a}</style>
-</head>
-<body>
-<header><h1>Geometry Dash</h1><p>Dodge obstacles</p></header>
-<div id="game">
-  <iframe src="https://www.geometry-jump.com" allowfullscreen></iframe>
-</div>
-<footer><a href="index.html" style="color:#64b5f6">Back to Games</a></footer>
-</body>
-</html>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Geometry Dash</title><style>body{font-family:Arial;text-align:center;background:#000;color:#fff;padding:20px}#game{position:relative;width:600px;height:300px;margin:20px auto;background:#333;border:2px solid #fff;overflow:hidden}#player{position:absolute;width:30px;height:30px;background:#0ff;bottom:50px;left:50px}#score{font-size:20px;margin:10px}button{padding:10px;margin:10px;background:#0366d6;color:#fff;border:0;cursor:pointer}</style></head><body><h1>Geometry Dash</h1><div id="score">Score: 0</div><div id="game"><div id="player"></div></div><button onclick="startGame()">Start Game</button><p><a href="index.html" style="color:#64b5f6">Back</a></p><script>let score=0,jumping=false,playerY=50;const player=document.getElementById('player');const game=document.getElementById('game');let obstacles=[];document.addEventListener('keydown',(e)=>{if(e.key===' '&&!jumping){jumping=true;let vy=-15;const jump=setInterval(()=>{playerY+=vy;vy+=0.6;player.style.bottom=playerY+'px';if(playerY<=50){playerY=50;jumping=false;clearInterval(jump)}},30)}});function spawnObstacle(){const obs=document.createElement('div');obs.style.position='absolute';obs.style.width='30px';obs.style.height='50px';obs.style.background='#f00';obs.style.left='600px';obs.style.bottom='50px';game.appendChild(obs);let x=600;const move=setInterval(()=>{x-=8;obs.style.left=x+'px';if(x<50&&x>20&&playerY<=90){alert('Game Over! Score: '+score);clearInterval(move);score=0};if(x<-30){game.removeChild(obs);clearInterval(move);score+=10;document.getElementById('score').textContent='Score: '+score}},30);obstacles.push(move)}setInterval(spawnObstacle,1500);startGame=()=>{score=0};</script></body></html>

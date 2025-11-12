@@ -1,16 +1,1 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Hangman</title>
-<style>body{margin:0;background:#0a0a0a;display:flex;flex-direction:column;height:100vh;font-family:Arial,sans-serif;color:#fff;overflow:hidden}header{padding:12px;text-align:center;background:#1a1a1a}#game{flex:1;display:flex;align-items:center;justify-content:center}iframe{width:100%;height:100%;border:none}footer{padding:8px;text-align:center;font-size:12px;background:#1a1a1a}</style>
-</head>
-<body>
-<header><h1>Hangman</h1><p>Guess the word</p></header>
-<div id="game">
-  <iframe src="https://www.thefreedictionary.com/hangman.htm" allowfullscreen></iframe>
-</div>
-<footer><a href="index.html" style="color:#64b5f6">Back to Games</a></footer>
-</body>
-</html>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hangman</title><style>body{font-family:Arial;max-width:600px;margin:20px auto;padding:16px;background:#1e1e1e;color:#fff;text-align:center}#word{font-size:28px;letter-spacing:8px;margin:20px;font-family:monospace}#guesses{margin:20px}button{padding:8px 12px;margin:2px;background:#0366d6;color:#fff;border:0;border-radius:4px;cursor:pointer}</style></head><body><h1>Hangman</h1><p>Guess the word!</p><p>Wrong: <span id="wrong">0</span>/6</p><div id="word"></div><div id="guesses"></div><button onclick="init()">New Game</button><p><a href="index.html" style="color:#64b5f6">Back</a></p><script>const words=['JAVASCRIPT','PROGRAMMING','COMPUTER','DEVELOPER','WEBSITE','HANGMAN','KEYBOARD','MONITOR'];let word='',guessed=[],wrong=0;function init(){word=words[Math.floor(Math.random()*words.length)];guessed=[];wrong=0;update()}function update(){let display='';for(let c of word)display+=(guessed.includes(c)?c:' _ ')+' ';document.getElementById('word').textContent=display;let html='';for(let i=65;i<=90;i++){const c=String.fromCharCode(i);html+=`<button onclick="guess('${c}')" ${guessed.includes(c)?'disabled':''}>${c}</button>`}document.getElementById('guesses').innerHTML=html;document.getElementById('wrong').textContent=wrong;if(wrong>=6){document.getElementById('word').innerHTML='GAME OVER! Word: '+word;document.getElementById('guesses').innerHTML='<button onclick="init()">Play Again</button>'}}function guess(c){if(!guessed.includes(c)){guessed.push(c);if(!word.includes(c))wrong++;update()}}init();</script></body></html>
