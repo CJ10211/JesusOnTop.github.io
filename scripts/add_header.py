@@ -12,7 +12,7 @@ GAMES = ROOT / 'games'
 header_html = '''
 <header class="site-header" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(90deg,#0b6fbf,#0b88e0);color:#fff">
   <div style="display:flex;align-items:center;gap:10px">
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width:36px;height:36px"><rect rx="8" width="64" height="64" fill="#fff"/><circle cx="20" cy="32" r="10" fill="#0b6fbf"/><path d="M34 20h10v24H34z" fill="#0b88e0"/></svg>
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width:36px;height:36px"><rect rx="8" width="64" height="64" fill="#fff"/><rect x="28" y="8" width="8" height="48" fill="#0b6fbf"/><rect x="12" y="28" width="40" height="8" fill="#0b6fbf"/></svg>
     <div style="font-weight:700">JesusOnTop Games</div>
   </div>
   <nav style="margin-left:auto;display:flex;gap:8px;align-items:center">
