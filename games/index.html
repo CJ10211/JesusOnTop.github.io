@@ -47,8 +47,8 @@
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="logo">
+  <header class="site-header" style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(90deg,#0b5fb0,#0b83d0);color:#fff">
+  <div class="logo">
       <!-- gaming controller logo -->
       <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width:40px;height:40px">
         <rect rx="10" width="64" height="64" fill="#fff"/>
@@ -63,7 +63,9 @@
       <a href="../index.html">Home</a>
       <a href="../index.html#contact">Contact</a>
     </nav>
-  </header>
+</header>
+<script>/* adjust body padding to avoid overlap with fixed header */(function(){var h=document.querySelector('.site-header'); if(!h) return; function update(){document.body.style.paddingTop = (h.offsetHeight || 64) + "px";} update(); window.addEventListener('resize', update);})();</script>
+
 
   <main class="wrap hub-v2">
     <div class="topbar">
@@ -72,6 +74,23 @@
         <div style="color:var(--muted);font-weight:600;margin-top:6px">Fast, self-hosted, and school-friendly — built in HTML5</div>
       </div>
       <div class="search"><input id="gameSearch" placeholder="Search games by name or description" aria-label="Search games"><span id="searchCount" style="margin-left:10px;color:var(--muted);font-weight:600"></span></div>
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:center;margin-top:10px;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;align-items:center">
+        <strong>Categories:</strong>
+        <button class="cat-btn" data-cat="all">All</button>
+        <button class="cat-btn" data-cat="action">Action</button>
+        <button class="cat-btn" data-cat="puzzle">Puzzle</button>
+        <button class="cat-btn" data-cat="arcade">Arcade</button>
+        <button class="cat-btn" data-cat="3d">3D</button>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:12px;align-items:center">
+        <div id="recentWrap" style="display:flex;gap:8px;align-items:center">
+          <strong style="font-weight:600;color:var(--muted)">Recent:</strong>
+          <div id="recentList" style="display:flex;gap:8px"></div>
+        </div>
+      </div>
     </div>
 
     <p class="lead"><strong>✓ All games are 100% self-hosted</strong> — no external embeds, no network filters. Play anywhere!</p>
@@ -121,6 +140,7 @@
       <div class="card"><h3><a class="game-link" href="flappy.html">Flappy Bird</a></h3><p>Tap to fly, avoid pipes.</p></div>
       <div class="card"><h3><a class="game-link" href="2048.html">2048 Puzzle</a></h3><p>Combine tiles to 2048.</p></div>
       <div class="card"><h3><a class="game-link" href="dino.html">Chrome Dino</a></h3><p>Jump to avoid obstacles.</p></div>
+      <div class="card"><h3><a class="game-link" href="cookie-clicker.html">Cookie Clicker</a></h3><p>Click cookies, buy upgrades, and automate production.</p></div>
     </div>
 
     <!-- keep the rest of the existing sections but they are unchanged structurally -->
@@ -226,24 +246,78 @@
     })();
   </script>
   <script>
-    // add thumbnails to cards that don't have one, based on title initials
+    // add thumbnails to cards that don't have one, preferring generated SVG files
     (function(){
+      function slug(name){ return name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
       document.addEventListener('DOMContentLoaded', function(){
         document.querySelectorAll('.grid .card').forEach(function(card){
           if(card.querySelector('.card-thumb')) return;
           var titleEl = card.querySelector('h3');
-          var initials = 'G';
-          if(titleEl){
-            var t = titleEl.innerText.trim();
-            initials = t.split(' ').map(function(s){return s[0];}).slice(0,2).join('').toUpperCase();
-          }
-          var thumb = document.createElement('div'); thumb.className='card-thumb'; thumb.textContent = initials;
+          var title = titleEl ? titleEl.innerText.trim() : 'Game';
+          var initials = title.split(' ').map(function(s){return s[0];}).slice(0,2).join('').toUpperCase() || 'G';
+          var base = slug((titleEl && titleEl.innerText) || card.querySelector('a') && card.querySelector('a').innerText || 'game');
+          var img = document.createElement('img'); img.className='card-thumb-img'; img.alt = title + ' thumbnail'; img.width=160; img.height=100;
+          img.src = 'assets/thumbs/' + base + '.svg';
+          img.style.width = '96px'; img.style.height = '64px'; img.style.borderRadius = '6px'; img.style.flex = '0 0 96px';
+          // on error replace with initials block
+          img.onerror = function(){ var d=document.createElement('div'); d.className='card-thumb'; d.textContent = initials; if(img.parentNode) img.parentNode.replaceChild(d,img); };
           var meta = document.createElement('div'); meta.className='meta';
           // move existing content into meta
           while(card.firstChild){ meta.appendChild(card.firstChild); }
-          card.appendChild(thumb);
+          card.appendChild(img);
           card.appendChild(meta);
         });
+      });
+    })();
+  </script>
+
+  <script>
+    // categories, search suggestions, and recent games
+    (function(){
+      function normalize(s){return (s||'').toString().toLowerCase();}
+      function detectCategory(title,desc){
+        var t = (title+' '+desc).toLowerCase();
+        if(t.match(/3d|maze|marble/)) return '3d';
+        if(t.match(/puzzle|2048|sudoku|match|bejeweled|threes/)) return 'puzzle';
+        if(t.match(/shoot|shooter|asteroid|galaga|space|bomber|shooter/)) return 'action';
+        if(t.match(/race|racing|car|drive|minigolf/)) return 'arcade';
+        return 'arcade';
+      }
+      document.addEventListener('DOMContentLoaded', function(){
+        var cards = Array.prototype.slice.call(document.querySelectorAll('.grid .card'));
+        var games = cards.map(function(card){
+          var title = (card.querySelector('h3') && card.querySelector('h3').innerText) || '';
+          var href = (card.querySelector('a') && card.querySelector('a').getAttribute('href')) || '#';
+          var desc = (card.querySelector('p') && card.querySelector('p').innerText) || '';
+          var cat = detectCategory(title,desc);
+          card.dataset.cat = cat;
+          return {title:title,href:href,desc:desc,cat:cat,el:card};
+        });
+
+        // category buttons
+        document.querySelectorAll('.cat-btn').forEach(function(b){ b.addEventListener('click', function(){
+          var cat = b.getAttribute('data-cat');
+          cards.forEach(function(card){ if(cat==='all' || card.dataset.cat===cat) card.classList.remove('hidden'); else card.classList.add('hidden'); });
+        }); });
+
+        // recent games UI
+        var recentList = document.getElementById('recentList');
+        function loadRecent(){ try{ return JSON.parse(localStorage.getItem('recentGames')||'[]'); }catch(e){return []} }
+        function saveRecent(arr){ localStorage.setItem('recentGames', JSON.stringify(arr)); }
+        function renderRecent(){ recentList.innerHTML=''; var rec = loadRecent(); rec.slice(0,6).forEach(function(r){ var a=document.createElement('a'); a.href=r.href; a.textContent=r.title; a.style.padding='6px 8px'; a.style.background='#f1f6fb'; a.style.borderRadius='6px'; a.style.fontSize='13px'; a.style.textDecoration='none'; a.style.color='#08324a'; recentList.appendChild(a); }); }
+        renderRecent();
+
+        // intercept game link clicks to record recent
+        document.querySelectorAll('.game-link').forEach(function(a){ a.addEventListener('click', function(){ var title = a.innerText || a.textContent; var href = a.getAttribute('href'); var rec = loadRecent(); rec = rec.filter(function(x){return x.href!==href}); rec.unshift({title:title,href:href}); saveRecent(rec.slice(0,12)); }); });
+
+        // search suggestions
+        var input = document.getElementById('gameSearch');
+        var suggBox = document.createElement('div'); suggBox.style.position='absolute'; suggBox.style.background='#fff'; suggBox.style.border='1px solid #e6eef8'; suggBox.style.boxShadow='0 8px 24px rgba(11,104,191,0.08)'; suggBox.style.display='none'; suggBox.style.zIndex='9999'; suggBox.style.maxHeight='220px'; suggBox.style.overflow='auto'; suggBox.style.width='320px';
+        document.body.appendChild(suggBox);
+        function positionSugg(){ var r = input.getBoundingClientRect(); suggBox.style.left = (r.left)+'px'; suggBox.style.top = (r.bottom+6)+'px'; suggBox.style.width = Math.max(220, r.width)+'px'; }
+        input.addEventListener('input', function(){ var q = normalize(input.value); if(!q){ suggBox.style.display='none'; return; } var matches = games.filter(function(g){ return g.title.toLowerCase().indexOf(q)!==-1 || g.desc.toLowerCase().indexOf(q)!==-1; }).slice(0,8); suggBox.innerHTML=''; matches.forEach(function(m){ var it=document.createElement('div'); it.style.padding='8px'; it.style.cursor='pointer'; it.textContent = m.title + ' — ' + m.desc; it.addEventListener('click', function(){ input.value = m.title; input.focus(); input.dispatchEvent(new Event('input')); suggBox.style.display='none'; }); suggBox.appendChild(it); }); if(matches.length){ positionSugg(); suggBox.style.display='block'; } else suggBox.style.display='none'; });
+        window.addEventListener('resize', positionSugg);
+
       });
     })();
   </script>

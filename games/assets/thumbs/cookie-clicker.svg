@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#ffd54d"/>
+      <stop offset="1" stop-color="#ffb74d"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="#fff8e6" rx="12"/>
+  <circle cx="90" cy="90" r="56" fill="url(#g)" stroke="#f0a400" stroke-width="6"/>
+  <circle cx="70" cy="70" r="6" fill="#6b3b00"/>
+  <circle cx="110" cy="86" r="8" fill="#6b3b00"/>
+  <circle cx="85" cy="110" r="5" fill="#6b3b00"/>
+  <text x="200" y="96" font-family="Arial,Helvetica,sans-serif" font-size="28" fill="#08324a">Cookie Clicker</text>
+</svg>

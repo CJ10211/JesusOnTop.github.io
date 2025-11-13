@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cookie Clicker — JesusOnTop</title>
+  <style>
+    :root{--bg:#f6fbff;--card:#fff;--accent:#f9c74f;--muted:#36556a}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#e9f6ff,#f6fbff);color:#08324a}
+    .container{max-width:900px;margin:28px auto;padding:20px}
+    .game-wrap{display:flex;gap:18px;align-items:flex-start}
+    .panel{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.06);flex:1}
+    .cookie{width:220px;height:220px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff1c6,#f7c64b);display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer;border:8px solid rgba(0,0,0,0.04);box-shadow:0 8px 30px rgba(15,41,62,0.06)}
+    .stats{font-size:18px;margin-bottom:12px}
+    .upgrades{display:flex;flex-direction:column;gap:10px}
+    .upgrade{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;border:1px solid #eef6fb}
+    .upgrade button{background:var(--blue,linear-gradient(90deg,#0b5fb0,#0b83d0));color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
+    .small{font-size:13px;color:var(--muted)}
+    header.site-header{position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(90deg,#0b5fb0,#0b83d0);color:#fff}
+    header .logo{display:flex;align-items:center;gap:10px;font-weight:700}
+    .back{margin-top:12px;display:inline-block}
+    @media(max-width:820px){.game-wrap{flex-direction:column;align-items:center}.cookie{width:180px;height:180px}}
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width:36px;height:36px">
+      <rect rx="8" width="64" height="64" fill="#fff"/>
+      <rect x="28" y="8" width="8" height="48" fill="#0b6fbf"/>
+      <rect x="12" y="28" width="40" height="8" fill="#0b6fbf"/>
+    </svg>
+    JesusOnTop Games
+  </div>
+  <nav style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <a href="../index.html" style="background:rgba(255,255,255,0.95);color:#08324a;padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:700">Home</a>
+    <a href="index.html" style="background:rgba(255,255,255,0.95);color:#08324a;padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:700">Games Hub</a>
+  </nav>
+</header>
+<script>/* adjust body padding for fixed header */(function(){var h=document.querySelector('.site-header'); if(!h) return; function update(){document.body.style.paddingTop=(h.offsetHeight||64)+'px';} update(); window.addEventListener('resize', update);})();</script>
+
+<main class="container">
+  <div style="display:flex;align-items:center;gap:12px;justify-content:space-between">
+    <div>
+      <h1 style="margin:0">Cookie Clicker — Demo</h1>
+      <div class="small">An original incremental demo: click cookies, buy upgrades, and automate production.</div>
+    </div>
+    <div style="text-align:right">
+      <div class="small">Save: localStorage • No external assets</div>
+    </div>
+  </div>
+
+  <div class="game-wrap" style="margin-top:18px">
+    <div class="panel" style="flex:0 0 260px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div id="cookie" class="cookie">🍪</div>
+      <div class="stats">Cookies: <strong id="count">0</strong></div>
+      <div class="stats">Cookies / sec: <strong id="cps">0</strong></div>
+      <div style="display:flex;gap:8px"><button id="saveBtn">Save</button><button id="resetBtn">Reset</button></div>
+      <a class="back" href="index.html">← Back to hub</a>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin-top:0">Upgrades & Buildings</h3>
+      <div class="upgrades" id="upgrades"></div>
+      <hr style="margin:14px 0">
+      <div class="small">Click power and automation stack. Buy cursors to auto-generate cookies, grandmas produce more.</div>
+    </div>
+  </div>
+</main>
+
+<script>
+  (function(){
+    // state
+    const state = {cookies:0, clickPower:1, cps:0, items:{cursor:0, grandma:0}, lastTick:Date.now()};
+    const COSTS = {cursor:15, grandma:100};
+
+    // elements
+    const elCount = document.getElementById('count');
+    const elCps = document.getElementById('cps');
+    const cookie = document.getElementById('cookie');
+    const upgradesWrap = document.getElementById('upgrades');
+
+    function load(){
+      try{ const raw=localStorage.getItem('cookieDemo'); if(raw){ const s=JSON.parse(raw); Object.assign(state,s); }
+      }catch(e){}
+    }
+    function save(){ localStorage.setItem('cookieDemo', JSON.stringify(state)); flash('Saved'); }
+    function reset(){ if(!confirm('Reset save?')) return; localStorage.removeItem('cookieDemo'); state.cookies=0; state.clickPower=1; state.cps=0; state.items={cursor:0,grandma:0}; render(); }
+
+    function flash(msg){ const t=document.createElement('div'); t.textContent=msg; t.style.position='fixed'; t.style.right='12px'; t.style.bottom='12px'; t.style.background='#08324a'; t.style.color='#fff'; t.style.padding='8px 10px'; t.style.borderRadius='8px'; document.body.appendChild(t); setTimeout(()=>t.remove(),1200); }
+
+    function buy(key){ let cost = Math.floor(COSTS[key]*Math.pow(1.15, state.items[key])); if(state.cookies < cost) return flash('Not enough cookies'); state.cookies -= cost; state.items[key]++; recalcCps(); render(); }
+
+    function recalcCps(){ // simple cps rates
+      state.cps = state.items.cursor * 0.1 + state.items.grandma * 1; elCps.textContent = state.cps.toFixed(2); }
+
+    function tick(){ const now=Date.now(); const dt=(now-state.lastTick)/1000; state.lastTick=now; state.cookies += state.cps*dt; render(); }
+
+    function render(){ elCount.textContent = Math.floor(state.cookies); elCps.textContent = state.cps.toFixed(2); renderUpgrades(); }
+
+    function renderUpgrades(){ upgradesWrap.innerHTML=''; const addRow = (key,label,desc)=>{
+      const row=document.createElement('div'); row.className='upgrade';
+      const left=document.createElement('div'); left.innerHTML='<strong>'+label+'</strong><div class="small">'+desc+'</div>';
+      const right=document.createElement('div'); const cost = Math.floor(COSTS[key]*Math.pow(1.15, state.items[key])); right.innerHTML = '<div style="text-align:right"><div class="small">Owned: '+state.items[key]+'</div><div style="font-weight:700">Cost: '+cost+'</div></div>';
+      const btn=document.createElement('button'); btn.textContent='Buy'; btn.onclick = ()=>buy(key);
+      right.appendChild(btn);
+      row.appendChild(left); row.appendChild(right); upgradesWrap.appendChild(row);
+    };
+    addRow('cursor','Cursor','+0.1 cookies/sec each.'); addRow('grandma','Grandma','+1 cookies/sec each.');
+    }
+
+    // clicks
+    cookie.addEventListener('click', function(){ state.cookies += state.clickPower; render(); });
+
+    // UI buttons
+    document.getElementById('saveBtn').addEventListener('click', save);
+    document.getElementById('resetBtn').addEventListener('click', reset);
+
+    // init
+    load(); recalcCps(); render();
+    // start tick
+    setInterval(tick, 200);
+
+    // auto-save
+    setInterval(save, 15000);
+  })();
+</script>
+
+</body>
+</html>
