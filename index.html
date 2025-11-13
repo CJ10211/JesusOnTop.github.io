@@ -4,14 +4,70 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>JesusOnTop Games</title>
-  <style>body{font-family:Arial,Helvetica,sans-serif;max-width:900px;margin:40px auto;padding:0 16px}a{color:#0366d6}</style>
+  <style>
+    :root{--blue-1:#0b6fbf;--blue-2:#0b88e0;--accent:#ffcc00;--card:#ffffff}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,var(--blue-1),var(--blue-2));color:#0b2b45;-webkit-font-smoothing:antialiased}
+    .site-header{display:flex;align-items:center;gap:16px;padding:18px 24px;color:#fff}
+    .logo{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px}
+    .logo svg{width:42px;height:42px}
+    .nav{margin-left:auto;display:flex;gap:12px}
+    .nav a{color:#08324a;text-decoration:none;background:rgba(255,255,255,0.92);padding:8px 12px;border-radius:8px;font-weight:600}
+    .container{max-width:1100px;margin:28px auto;padding:20px;background:var(--card);border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.18)}
+    h1{margin:0 0 8px 0;color:var(--blue-1)}
+    p.lead{margin:0 0 16px 0;color:#23475f}
+    .links{display:flex;flex-wrap:wrap;gap:12px}
+    .btn{display:inline-block;background:var(--blue-2);color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:700;box-shadow:0 6px 18px rgba(11,104,191,0.28)}
+    footer{margin-top:18px;text-align:center;color:#6b7f8f;font-size:14px}
+    @media (max-width:700px){.nav{display:none}}
+  </style>
 </head>
 <body>
-  <h1>JesusOnTop — Games</h1>
-  <p>Welcome — play games hosted here.</p>
-  <ul>
-    <li><a href="Drive Mad.html">Drive Mad (embedded)</a></li>
-    <li><a href="games/index.html">Games Hub (Snake, Breakout, Tetris)</a></li>
-  </ul>
+  <header class="site-header">
+    <div class="logo">
+      <!-- simple inline SVG logo -->
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g" x1="0" x2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity=".9"/>
+            <stop offset="1" stop-color="#ffd66b"/>
+          </linearGradient>
+        </defs>
+        <rect rx="10" width="64" height="64" fill="#fff"/>
+        <circle cx="20" cy="32" r="12" fill="#0b6fbf"/>
+        <path d="M34 20h10v24H34z" fill="#0b88e0"/>
+        <circle cx="46" cy="22" r="4" fill="url(#g)"/>
+      </svg>
+      <div>
+        JesusOnTop
+        <div style="font-size:12px;color:rgba(0,0,0,0.55)">Play 60+ Unblocked Games</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a class="btn" href="games/index.html">Play Games</a>
+      <a class="btn" href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Welcome to JesusOnTop Games</h1>
+    <p class="lead">A curated collection of self-hosted HTML5 games — no external embeds or CDNs. Works on school networks and GitHub Pages.</p>
+
+    <div class="links">
+      <a class="btn" href="games/index.html">Open Games Hub</a>
+      <a class="btn" href="games/2048.html">Play 2048</a>
+      <a class="btn" href="games/flappy.html">Play Flappy</a>
+      <a class="btn" href="games/3d-maze.html">Try 3D Maze</a>
+    </div>
+
+    <section style="margin-top:18px">
+      <h2 style="margin:14px 0 8px 0;color:#0b6fbf">About this site</h2>
+      <p style="color:#23475f;line-height:1.5">These games are rebuilt to run entirely from this site. They are designed to be fast, mobile-friendly, and unblockable on filtered networks. If you'd like a new game added or a visual tweak, open an issue or edit the repo.</p>
+    </section>
+
+    <footer id="contact">
+      <p>Made with ❤️ — <a href="games/index.html">Games Hub</a></p>
+    </footer>
+  </main>
 </body>
 </html>
