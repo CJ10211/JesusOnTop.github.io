@@ -22,6 +22,7 @@
     h2{margin-top:28px;border-top:2px solid #eef4fb;padding-top:12px}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
     .card{border:1px solid #e9f3fb;padding:12px;border-radius:8px;background:#fff;box-shadow:0 6px 14px rgba(11,104,191,0.04)}
+    .card.hidden{display:none}
     h3{margin:0 0 8px 0}
     p{margin:0;font-size:14px;color:#3b5361}
     .badge{display:inline-block;background:#27ae60;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;margin-top:8px}
@@ -45,7 +46,7 @@
   <main class="wrap">
     <div class="topbar">
       <h1>🎮 Games Hub — 60+ Unblocked Games</h1>
-      <div class="search"><input placeholder="Search games (coming soon)" aria-label="Search games"></div>
+      <div class="search"><input id="gameSearch" placeholder="Search games by name or description" aria-label="Search games"><span id="searchCount" style="margin-left:10px;color:var(--muted);font-weight:600"></span></div>
     </div>
 
     <p class="lead"><strong>✓ All games are 100% self-hosted</strong> — no external embeds, no network filters. Play anywhere!</p>
@@ -118,5 +119,35 @@
 
     <footer style="margin-top:18px;text-align:center;color:var(--muted)">Made with ❤️ — JesusOnTop</footer>
   </main>
+  <script>
+    (function(){
+      function normalize(s){return (s||'').toString().replace(/\s+/g,' ').trim().toLowerCase();}
+      document.addEventListener('DOMContentLoaded', function(){
+        var input = document.getElementById('gameSearch');
+        if(!input) return;
+        var cards = Array.prototype.slice.call(document.querySelectorAll('.grid .card'));
+        var countEl = document.getElementById('searchCount');
+        function update(){
+          var q = normalize(input.value);
+          var visible = 0;
+          cards.forEach(function(card){
+            var title = normalize(card.querySelector('h3') && card.querySelector('h3').innerText);
+            var desc = normalize(card.querySelector('p') && card.querySelector('p').innerText);
+            var hay = (title + ' ' + desc);
+            if(!q || hay.indexOf(q) !== -1){
+              card.classList.remove('hidden');
+              visible++;
+            } else {
+              card.classList.add('hidden');
+            }
+          });
+          if(countEl) countEl.textContent = q ? visible + ' results' : '';
+        }
+        input.addEventListener('input', update);
+        // support quick focus with / key
+        document.addEventListener('keydown', function(e){ if(e.key === '/' && document.activeElement !== input){ e.preventDefault(); input.focus(); input.select(); }});
+      });
+    })();
+  </script>
 </body>
 </html>
