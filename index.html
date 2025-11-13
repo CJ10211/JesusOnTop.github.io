@@ -6,14 +6,18 @@
   <title>JesusOnTop Games</title>
   <style>
     :root{--blue-1:#0b6fbf;--blue-2:#0b88e0;--accent:#ffcc00;--card:#ffffff}
-    html,body{height:100%}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,var(--blue-1),var(--blue-2));color:#0b2b45;-webkit-font-smoothing:antialiased}
-    .site-header{display:flex;align-items:center;gap:16px;padding:18px 24px;color:#fff}
+    @keyframes twinkle{0%,100%{opacity:0.3}50%{opacity:1}}
+    @keyframes drift{0%{transform:translateY(0)}100%{transform:translateY(-100vh)}}
+    html,body{height:100%;margin:0}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#001a4d 0%,#0b2b45 50%,#001a33 100%);color:#0b2b45;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+    body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(2px 2px at 20% 30%, #eee, rgba(0,0,0,0)),radial-gradient(2px 2px at 60% 70%, #fff, rgba(0,0,0,0)),radial-gradient(1px 1px at 50% 50%, #fff, rgba(0,0,0,0)),radial-gradient(1px 1px at 80% 10%, #fff, rgba(0,0,0,0)),radial-gradient(2px 2px at 90% 60%, #fff, rgba(0,0,0,0)),radial-gradient(1px 1px at 30% 80%, #eee, rgba(0,0,0,0)),radial-gradient(1px 1px at 10% 40%, #fff, rgba(0,0,0,0)),radial-gradient(2px 2px at 40% 90%, #fff, rgba(0,0,0,0));background-size:200% 200%;background-position:0 0;background-repeat:repeat;animation:twinkle 3s ease-in-out infinite;pointer-events:none;z-index:0}
+    body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,rgba(0,26,77,0.4) 0%,rgba(11,43,69,0.2) 50%,rgba(0,26,51,0.4) 100%);pointer-events:none;z-index:1}
+    .site-header{display:flex;align-items:center;gap:16px;padding:18px 24px;color:#fff;position:relative;z-index:10}
     .logo{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px}
     .logo svg{width:42px;height:42px}
     .nav{margin-left:auto;display:flex;gap:12px}
     .nav a{color:#08324a;text-decoration:none;background:rgba(255,255,255,0.92);padding:8px 12px;border-radius:8px;font-weight:600}
-    .container{max-width:1100px;margin:28px auto;padding:20px;background:var(--card);border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.18)}
+    .container{max-width:1100px;margin:28px auto;padding:20px;background:var(--card);border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.18);position:relative;z-index:10}
     h1{margin:0 0 8px 0;color:var(--blue-1)}
     p.lead{margin:0 0 16px 0;color:#23475f}
     .links{display:flex;flex-wrap:wrap;gap:12px}
